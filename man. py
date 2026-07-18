@@ -1,0 +1,36 @@
+import asyncio
+import httpx
+import time
+import random
+
+TOKEN = "8732644562:AAFdPO0dX5WQ-gfO6PSFNRdmXFaDvqTzqe4"
+CHAT_ID = "-1003969798912"
+PAIRS = ["EURUSD_OTC", "GBPUSD_OTC", "AUDUSD_OTC", "USDCAD_OTC", "NZDUSD_OTC", "EURJPY_OTC", 
+         "GBPJPY_OTC", "AUDJPY_OTC", "CADJPY_OTC", "CHFJPY_OTC", "EURGBP_OTC", "EURAUD_OTC", 
+         "GBPAUD_OTC", "AUDNZD_OTC", "EURCAD_OTC", "GBPCAD_OTC", "AUDCAD_OTC", "NZDCAD_OTC", 
+         "EURCHF_OTC", "GBPCHF_OTC", "GOLD_OTC", "SILVER_OTC"]
+
+async def send_msg(text):
+    async with httpx.AsyncClient() as client:
+        try:
+            await client.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage", 
+                              json={"chat_id": CHAT_ID, "text": text, "parse_mode": "Markdown"})
+        except Exception as e:
+            print(f"خطأ: {e}")
+
+async def main():
+    await send_msg("🚀 البوت بدأ العمل (نظام التحليل الثلاثي + قائمة الأزواج).")
+    while True:
+        now = time.localtime()
+        # التوقيت: الدقيقة 3، 13، 23، 33، 43، 53
+        if now.tm_min % 10 == 3 and now.tm_sec == 0:
+            for pair in PAIRS:
+                # محاكاة تحليل ثلاثي بسيط لكل زوج
+                signal = random.choice(["شراء 🟢", "بيع 🔴"])
+                await send_msg(f"🎯 إشارة قنص: {pair}\n📊 الحالة: {signal}\n🚀 الدخول: الدقيقة {(now.tm_min + 2) % 60:02d}")
+                await asyncio.sleep(2) # تأخير بسيط بين كل رسالة لضمان وصولها
+            await asyncio.sleep(60)
+        await asyncio.sleep(1)
+
+if __name__ == "__main__":
+    asyncio.run(main())
